@@ -5,8 +5,10 @@ void load_resource();
 void game_on();
 void handle_keydown();
 void handle_userinput();
-void fresh_video();
+void refresh_video();
 void move_ball();
+void stop_ball();
+void resume_ball();
 int display_bmp();
 int display_smallball();
 int display_background();
@@ -35,6 +37,18 @@ SDL_Surface *g_background = NULL;
 void keep_fps()
 {
 	SDL_Delay(30);
+}
+
+void stop_ball()
+{
+    g_ball_speed_y = 0;
+    g_ball_speed_x = 0;
+}
+
+void resume_ball()
+{
+    g_ball_speed_x = 50;
+    g_ball_speed_y = 50;
 }
 
 void load_resource()
@@ -84,7 +98,7 @@ void game_on()
     while(!g_running)
     {
         handle_userinput();
-        fresh_video();
+        refresh_video();
 		keep_fps();
     }
 	printf("sdl system quit now\n");
@@ -110,6 +124,12 @@ void handle_keydown(SDL_KeyboardEvent * key)
 		case SDLK_RIGHT:
 			g_ball_speed_x += 5;
 			break;
+        case SDLK_s:
+            stop_ball();
+            break;
+        case SDLK_g:
+            resume_ball();
+            break;
 		default:
 			printf("unknown key\n");
 			break;
@@ -153,7 +173,7 @@ int display_background()
 	return 0;
 }
 
-void fresh_video()
+void refresh_video()
 {
 	display_background();
 	
@@ -206,11 +226,6 @@ int display_bmp()
 		printf("blit error\n");
 	}
 
-	//SDL_UpdateRect(g_screen, g_image_rect.x, g_image_rect.y, g_image->w, g_image->h);
-	
-	
-	//SDL_FillRect(g_screen, NULL, 222);
-                 
     return 0;
 }
 
