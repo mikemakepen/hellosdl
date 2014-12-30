@@ -1,0 +1,11 @@
+CC=gcc
+CFLAG= -g
+SRC:=hellosdl.c
+OBJ:=hellosdl.o
+TARTGET:=hellosdl.exe
+THISLIB:= -lmingw32 -lSDLmain -lSDL
+hellosdl.o : hellosdl.c
+	$(CC) -c -o hellosdl.o hellosdl.c
+	$(CC) $(CFLAG)  -o hellosdl.exe hellosdl.o $(THISLIB)
+clean :
+	$(RM) -f $(OBJ) $(TARGET)

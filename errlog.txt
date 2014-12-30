@@ -1,0 +1,3 @@
+undefined refference to WinMain@16
+竟然是由于链接库的顺序原因
+正确顺序-lmingw32 -lSDLmain -lSDL
