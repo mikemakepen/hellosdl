@@ -3,9 +3,14 @@
 void keep_fps();
 void load_resource();
 void game_on();
-void handle_keydown();
+void handle_active(SDL_ActiveEvent* active);
+void handle_keydown(SDL_KeyboardEvent * key);
+void handle_mouse_motion(SDL_MouseMotionEvent *motion);
+void handle_mouse_button(SDL_MouseButtonEvent *button);
+void handle_quit();
 void handle_userinput();
 void refresh_video();
+void move_ball_to(int x, int y);
 void move_ball();
 void stop_ball();
 void resume_ball();
@@ -16,6 +21,7 @@ int display_background();
 
 int g_running = 0;
 int g_count = 0;
+char g_mode = 'm';
 
 SDL_Surface *g_image = NULL;
 SDL_Rect g_image_rect;
@@ -29,24 +35,31 @@ SDL_Rect g_screen_rect;
 
 SDL_Surface *g_background = NULL;
 
-
+#define GAME_FPS 30
 #define BMP_FILE "media/lala.bmp"
 #define BACKGROUND_FILE "media/background_black.bmp"
 
 
 void keep_fps()
 {
-	SDL_Delay(30);
+    int interval = 1000 / GAME_FPS;
+    if (g_mode == 'm')
+    {
+        interval = 5;
+    }
+    SDL_Delay(interval);
 }
 
 void stop_ball()
 {
+    g_mode = 'm';
     g_ball_speed_y = 0;
     g_ball_speed_x = 0;
 }
 
 void resume_ball()
 {
+    g_mode = 'a';
     g_ball_speed_x = 50;
     g_ball_speed_y = 50;
 }
@@ -130,12 +143,43 @@ void handle_keydown(SDL_KeyboardEvent * key)
         case SDLK_g:
             resume_ball();
             break;
+        case SDLK_m:
+            stop_ball();
+            break;
+        case SDLK_a:
+            resume_ball();
+            break;
 		default:
 			printf("unknown key\n");
 			break;
 	}
 	
 }
+
+void handle_active(SDL_ActiveEvent * active)
+{
+}
+void handle_mouse_motion(SDL_MouseMotionEvent *motion)
+{
+    //if left button is pressed then move ball
+    if (motion->state & SDL_BUTTON(SDL_BUTTON_LEFT))
+    {
+        move_ball_to(motion->x, motion->y);
+    }
+}
+void handle_mouse_button(SDL_MouseButtonEvent *button)
+{
+    if (button->type == SDL_MOUSEBUTTONDOWN)
+    {
+        move_ball_to(button->x, button->y);
+    }
+}
+void handle_quit()
+{
+    g_running = 1;
+    printf("user X out the window!!!\n");
+}
+
 void handle_userinput()
 {
 	SDL_Event event;
@@ -143,11 +187,28 @@ void handle_userinput()
 	{
 		switch(event.type)
 		{
+            case SDL_QUIT:
+                handle_quit();
+                break;
+            case SDL_ACTIVEEVENT:
+                handle_active(&event.active);
+                break;
 			case SDL_KEYDOWN:
 				handle_keydown(&event.key);
 				break;
+            case SDL_KEYUP:
+                break;
+            case SDL_MOUSEMOTION:
+                handle_mouse_motion(&event.motion);
+                break;
+            case SDL_MOUSEBUTTONDOWN:
+                handle_mouse_button(&event.button);
+                break;
+            case SDL_MOUSEBUTTONUP:
+                handle_mouse_button(&event.button);
+                break;
 			default:
-				printf("unknown envent\n");
+				printf("unknown event\n");
 				break;
 		}
 	}
@@ -183,12 +244,21 @@ void refresh_video()
 		printf("flip screen fail\n");
 	}
 
-	printf("count %d \tdisplay_bmp return %d ball pos_x %d pos_y %d\n",
-		g_count, ret, g_image_rect.x, g_image_rect.y);
+	//printf("count %d \tdisplay_bmp return %d ball pos_x %d pos_y %d\n",
+//		g_count, ret, g_image_rect.x, g_image_rect.y);
 	g_count++;
 	
-	move_ball();
+    if (g_mode == 'a')
+    {
+        move_ball();
+    }
 	
+}
+
+void move_ball_to(int x, int y)
+{
+    g_image_rect.x = x - g_image_rect.w / 2;
+    g_image_rect.y = y - g_image_rect.h / 2;
 }
 
 void move_ball()
@@ -249,6 +319,6 @@ int main(int argc, char** argv)
 	release_resource();
 
     SDL_Quit();
-    printf("sdl system quit now bye\n");
+    printf("quit now bye\n");
     return 0;
 }
