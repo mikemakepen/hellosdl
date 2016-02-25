@@ -1,4 +1,4 @@
 hellosdl
 ========
 
-a sdl learning project
+a sdl1 learning project
