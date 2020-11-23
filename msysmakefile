@@ -3,7 +3,7 @@ CFLAG= -g
 SRC:=hellosdl.c
 OBJ:=hellosdl.o
 TARGET:=hellosdl.exe
-THISLIB:= -lmingw32 -lSDLmain -lSDL
+THISLIB:= -lmingw32 -lSDL2main -lSDL2
 hellosdl.o : hellosdl.c
 	$(CC) -c -o hellosdl.o hellosdl.c
 	$(CC) $(CFLAG)  -o hellosdl.exe hellosdl.o $(THISLIB)

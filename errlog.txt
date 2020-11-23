@@ -1,3 +1,11 @@
 undefined refference to WinMain@16
 竟然是由于链接库的顺序原因
 正确顺序-lmingw32 -lSDLmain -lSDL
+
+
+
+in function `main':
+C:/_/M/mingw-w64-crt-git/src/mingw-w64/mingw-w64-crt/crt/crt0_c.c:18: undefined reference to `WinMain'
+collect2.exe: error: ld returned 1 exit status
+make: *** [Makefile:11：hellosdl] 错误 1
+使用msysmakefile进行编译

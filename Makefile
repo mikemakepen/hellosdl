@@ -5,7 +5,7 @@ DIRS := ./
 SRC := $(foreach dir, $(DIRS), $(wildcard $(dir)*.$(FILETYPE)))
 OBJ := $(patsubst %.$(FILETYPE), %.o, $(SRC))
 TARGET := hellosdl
-THISLIB :=  -lSDL
+THISLIB :=  -lSDL2
 
 $(TARGET) : $(OBJ) 
 	$(CC) $(CFLAG)  -o $@ $^  $(THISLIB) 
