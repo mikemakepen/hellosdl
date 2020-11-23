@@ -18,11 +18,15 @@ int display_bmp();
 int display_smallball();
 int display_background();
 SDL_Texture *load_texture_from_bmp(char* file_path);
+void speed_up(int *speed);
+void speed_down(int *speed);
 
 
 int g_running = 0;
 int g_count = 0;
 char g_mode = 'm';
+double reduction = 0.8;
+double acceleration = 1.5;
 
 SDL_Texture *g_image = NULL;
 SDL_Rect g_image_rect;
@@ -155,6 +159,25 @@ void game_on()
 	printf("sdl system quit now\n");
 }
 
+void speed_up(int *speed)
+{
+	
+	if (*speed == 0)
+	{
+		*speed = 2;
+	}
+	*speed = *speed * acceleration;
+}
+
+void speed_down(int *speed)
+{
+	if (*speed == 0)
+	{
+		*speed = 2;
+	}
+	*speed = *speed * reduction;
+}
+
 void handle_keydown(SDL_KeyboardEvent * key)
 {
 	printf("key down: %d\n", key->keysym.sym);
@@ -165,16 +188,16 @@ void handle_keydown(SDL_KeyboardEvent * key)
 			printf("user input escape set g_running = 1\n");
 			break;
 		case SDLK_UP:
-			g_ball_speed_y += 5;
+			speed_up(&g_ball_speed_y);
 			break;
 		case SDLK_DOWN:
-			g_ball_speed_y -= 5;
+			speed_up(&g_ball_speed_y);
 			break;
 		case SDLK_LEFT:
-			g_ball_speed_x -= 5;
+			speed_up(&g_ball_speed_x);
 			break;
 		case SDLK_RIGHT:
-			g_ball_speed_x += 5;
+			speed_up(&g_ball_speed_x);
 			break;
         case SDLK_s:
             stop_ball();
@@ -323,14 +346,14 @@ void move_ball()
 	if (g_image_rect.x + g_ball_speed_x + g_image_rect.w > g_screen_rect.w
 			|| g_image_rect.x + g_ball_speed_x < 0)
 	{
-		g_ball_speed_x = 0 - g_ball_speed_x;
+		g_ball_speed_x = (0 - g_ball_speed_x) * reduction;
 	}
 	// printf("end of g_ball_speed_x\n");
 	// fflush(stdout);
 	if (g_image_rect.y + g_ball_speed_y + g_image_rect.h > g_screen_rect.h 
 			|| g_image_rect.y + g_ball_speed_y < 0)
 	{
-		g_ball_speed_y = 0 - g_ball_speed_y;
+		g_ball_speed_y = (0 - g_ball_speed_y) * reduction;
 	}
 	// printf("end of g_ball_speed_y\n");
 	// fflush(stdout);
@@ -375,7 +398,7 @@ int main(int argc, char** argv)
     }
     printf("sdl system init success ^_^\n");
 
-	g_window = SDL_CreateWindow("ball", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 320, SDL_WINDOW_OPENGL);
+	g_window = SDL_CreateWindow("ball", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 493, 300, SDL_WINDOW_OPENGL);
 	if (NULL == g_window) 
 	{
 		printf("create window fail\n");
