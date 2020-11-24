@@ -21,9 +21,10 @@ SDL_Texture *load_texture_from_bmp(char* file_path);
 void speed_up(int *speed);
 void speed_down(int *speed);
 
-
+int g_interval_fps = 100;
 int g_running = 0;
 int g_count = 0;
+unsigned int g_last_ticks = 0;
 char g_mode = 'm';
 double reduction = 0.8;
 double acceleration = 1.5;
@@ -43,17 +44,46 @@ SDL_Rect g_screen_rect;
 SDL_Texture *g_background = NULL;
 
 #define GAME_FPS 144
+#define IDLE_FPS 25
 #define BMP_FILE "media/lala.bmp"
+#define WHITE_BALL_FILE "media/lala_white.bmp"
 #define BACKGROUND_FILE "media/background_black.bmp"
 
+void calc_fps()
+{
+	g_count++;
+	
+	if (g_count % g_interval_fps == 0) 
+	{
+		unsigned int ticks = SDL_GetTicks();
+		unsigned int passed = 0;
+		if (ticks >= g_last_ticks) 
+		{
+			passed = ticks - g_last_ticks;
+		} else {
+			passed = 0xffffffff - g_last_ticks + ticks;
+		}
+
+		//update last ticks
+		g_last_ticks = ticks;
+
+		//calc fps
+		int fps = g_interval_fps * passed / 1000;
+
+		printf("fps: %d, passed: %d, g_count: %d\n" , fps, passed, g_count);
+	}
+	
+}
 
 void keep_fps()
 {
-    int interval = 1000 / GAME_FPS;
+	int interval = 0;
     if (g_mode == 'm')
     {
-        interval = 40;
-    }
+        interval = 1000 / IDLE_FPS;
+    } else {
+		interval = 1000 / GAME_FPS;
+	}
     SDL_Delay(interval);
 }
 
@@ -153,6 +183,7 @@ void game_on()
         // fflush(stdout);
 		refresh_video();
 		// printf("end of refresh\n");
+		calc_fps();
 		fflush(stdout);
 		keep_fps();
     }
@@ -319,7 +350,7 @@ void refresh_video()
 	// fflush(stdout);
 	//printf("count %d \tdisplay_bmp return %d ball pos_x %d pos_y %d\n",
 //		g_count, ret, g_image_rect.x, g_image_rect.y);
-	g_count++;
+	
 	// printf("test g_mode: %c \n", g_mode);
     if (g_mode == 'a')
     {
@@ -398,6 +429,7 @@ int main(int argc, char** argv)
     }
     printf("sdl system init success ^_^\n");
 
+	SDL_LogSetAllPriority(SDL_LOG_PRIORITY_VERBOSE);
 	g_window = SDL_CreateWindow("ball", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 493, 300, SDL_WINDOW_OPENGL);
 	if (NULL == g_window) 
 	{
